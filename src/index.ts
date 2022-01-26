@@ -1,10 +1,8 @@
 import { Message, Client, Intents } from "discord.js";
 import * as dotenv from "dotenv";
 import { GameManager } from "./game_manager";
-import { SetGame } from "./set";
 
 dotenv.config();
-
 
 // Create a new client instance
 const client = new Client({

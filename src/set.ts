@@ -5,9 +5,9 @@ import { shuffleArray } from "./utils";
 
 export class SetGame {
 
-	private static readonly cardDim: number[] = [96, 46];
-	private static readonly colors = ["green", "blue", "red"];
-	private static readonly opacity = [0, 0.5, 1];
+	private static readonly CARD_DIM: number[] = [96, 46];
+	private static readonly COLORS = ["green", "blue", "red"];
+	private static readonly OPACITY = [0, 0.5, 1];
 
 	private cards: number[];
 	private curCards: number[];
@@ -73,16 +73,16 @@ export class SetGame {
 		context.fillStyle = "white";
 		for (let i = 0; i < this.curCards.length / 3; i++) {
 			for (let j = 0; j < 3; j++) {
-				context.fillRect(j * (SetGame.cardDim[0] + 4),
-					i * (SetGame.cardDim[1] + 4),
-					SetGame.cardDim[0],
-					SetGame.cardDim[1]
+				context.fillRect(j * (SetGame.CARD_DIM[0] + 4),
+					i * (SetGame.CARD_DIM[1] + 4),
+					SetGame.CARD_DIM[0],
+					SetGame.CARD_DIM[1]
 				);
 			}
 		}
 		for (let i = 0; i < this.curCards.length / 3; i++) {
 			for (let j = 0; j < 3; j++) {
-				const offset = [j * (SetGame.cardDim[0] + 4), i * (SetGame.cardDim[1] + 4)];
+				const offset = [j * (SetGame.CARD_DIM[0] + 4), i * (SetGame.CARD_DIM[1] + 4)];
 				this.drawCard(this.getVecCard(this.curCards[i * 3 + j]), offset, context);
 			}
 		}
@@ -93,14 +93,14 @@ export class SetGame {
 	}
 
 	private drawCard(card_vec: number[], offset: number[], context: CanvasRenderingContext2D): void {
-		context.fillStyle = SetGame.colors[card_vec[0]];
-		context.strokeStyle = SetGame.colors[card_vec[0]];
+		context.fillStyle = SetGame.COLORS[card_vec[0]];
+		context.strokeStyle = SetGame.COLORS[card_vec[0]];
 		for (let i = 0; i <= card_vec[1]; i++) {
-			const cur_x = offset[0] + ((SetGame.cardDim[0] * (i + 1)) / (card_vec[1] + 2));
-			const cur_y = offset[1] + SetGame.cardDim[1] / 2;
+			const cur_x = offset[0] + ((SetGame.CARD_DIM[0] * (i + 1)) / (card_vec[1] + 2));
+			const cur_y = offset[1] + SetGame.CARD_DIM[1] / 2;
 			switch (card_vec[2]) {
 			case 0:
-				context.globalAlpha = SetGame.opacity[card_vec[3]];
+				context.globalAlpha = SetGame.OPACITY[card_vec[3]];
 				context.fillRect(cur_x - 10, cur_y - 10, 20, 20);
 				context.globalAlpha = 1;
 				context.strokeRect(cur_x - 10, cur_y - 10, 20, 20);
@@ -108,7 +108,7 @@ export class SetGame {
 			case 1:
 				context.beginPath();
 				context.arc(cur_x, cur_y, 10, 0, 2 * Math.PI);
-				context.globalAlpha = SetGame.opacity[card_vec[3]];
+				context.globalAlpha = SetGame.OPACITY[card_vec[3]];
 				context.fill();
 				context.globalAlpha = 1;
 				context.stroke();
@@ -120,7 +120,7 @@ export class SetGame {
 				context.lineTo(cur_x + 10, cur_y + 10);
 				context.lineTo(cur_x - 10, cur_y + 10);
 				context.lineTo(cur_x, cur_y - 10);
-				context.globalAlpha = SetGame.opacity[card_vec[3]];
+				context.globalAlpha = SetGame.OPACITY[card_vec[3]];
 				context.fill();
 				context.globalAlpha = 1;
 				context.stroke();
