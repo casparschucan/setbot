@@ -41,7 +41,7 @@ export class GameManager {
 	public addGame(channel: TextChannel, author: User, players: Map<string, User>): void {
 		const plainAuthor: string = author.toString().substring(2, author.toString().length - 1);
 		if (!players.has(plainAuthor)) {
-			players.set(plainAuthor, author);
+			//players.set(plainAuthor, author);
 		}
 		this.games.push(new SetGame(channel, Array.from(players.keys())));
 	}

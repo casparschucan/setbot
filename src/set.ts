@@ -37,10 +37,10 @@ export class SetGame {
 		this.addCards();
 		message.react("✔");
 		this.drawCards();
-		const tag: string = message.author.toString();
-		const score = this.players.get(tag);
+		const plainPlayer: string = message.author.toString().substring(2, message.author.toString().length - 1);
+		const score = this.players.get(plainPlayer);
 		if (score === undefined) {
-			this.players.set(tag, 0);
+			this.players.set(plainPlayer, 0);
 		}
 		if (this.curIndex > 80 && !this.findSet()) {
 			this.endGame();
@@ -51,20 +51,20 @@ export class SetGame {
 	public async newDiscordGuess(message: Message): Promise<void> {
 		const guess: string = message.content.substring(5);
 		const positions: number[] = JSON.parse(`[${guess}]`);
-		const tag: string = message.author.toString();
-		let score = this.players.get(tag);
+		const plainPlayer: string = message.author.toString().substring(2, message.author.toString().length - 1);
+		let score = this.players.get(plainPlayer);
 		if (score === undefined) {
-			this.players.set(tag, 0);
+			this.players.set(plainPlayer, 0);
 			score = 0;
 		} 
 		if (this.newGuess(positions[0] - 1, positions[1] - 1, positions[2] - 1)) {
 			message.react("✔");
 			await this.message?.delete();
 			this.drawCards();
-			this.players.set(tag, score + 3);
+			this.players.set(plainPlayer, score + 3);
 		} else {
 			message.react("❌");
-			this.players.set(tag, score - 3);
+			this.players.set(plainPlayer, score - 3);
 		}
 		this.findSet();
 		this.last_action = Date.now();
