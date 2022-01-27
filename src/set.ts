@@ -19,16 +19,16 @@ export class SetGame {
 	private players: Map<string, number>;
 	private message: Message | undefined;
 
-	constructor(channel: TextChannel, author: string) {
+	constructor(channel: TextChannel, plainPlayers: string[]) {
 		this.cards = shuffleArray(Array.from(Array(81).keys()));
 		this.channel = channel;
 		this.curCards = this.cards.slice(0, 12);
 		this.curIndex = 12;	
 		this.finished = false;
 		this.players = new Map();
-		this.players.set(author, 0);
 		this.last_action = Date.now();
 		this.drawCards();
+		plainPlayers.forEach(plainPlayer => this.players.set(plainPlayer, 0));
 		console.log(this.getStringCards());
 	}
 
@@ -73,7 +73,7 @@ export class SetGame {
 	public endGame() {
 		let endString = "The game has ended. The results are:\n";
 		for (const [tag, score] of this.players.entries()) {
-			endString += `${tag} has scored: ${score}\n`;
+			endString += `<@${tag}> has scored: ${score}\n`;
 		}
 		this.finished = true;
 		this.channel.send(endString);

@@ -4,7 +4,7 @@ import { SetGame } from "./set";
 
 export class GameManager {
 
-	public static readonly MAX_GAME_DURATION_MS = 3.6e3;
+	public static readonly MAX_GAME_DURATION_MS = 3.6e6;
 	
 	private games: SetGame[];
 
@@ -30,7 +30,7 @@ export class GameManager {
 				indices.push(i);
 			}
 		}
-		
+
 		indices.reverse();
 
 		for (const index of indices) {
@@ -38,7 +38,11 @@ export class GameManager {
 		}
 	}
 
-	public addGame(channel: TextChannel, author: User): void {
-		this.games.push(new SetGame(channel, author.toString()));
+	public addGame(channel: TextChannel, author: User, players: Map<string, User>): void {
+		const plainAuthor: string = author.toString().substring(2, author.toString().length - 1);
+		if (!players.has(plainAuthor)) {
+			players.set(plainAuthor, author);
+		}
+		this.games.push(new SetGame(channel, Array.from(players.keys())));
 	}
 }
