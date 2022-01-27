@@ -1,8 +1,10 @@
-import { TextChannel } from "discord.js";
+import { TextChannel, User } from "discord.js";
 import { SetGame } from "./set";
 
 
 export class GameManager {
+
+	public static readonly MAX_GAME_DURATION_MS = 3.6e3;
 	
 	private games: SetGame[];
 
@@ -17,18 +19,26 @@ export class GameManager {
 		return undefined;
 	}
 
-	public removeGames() {
+	public removeGames(): void {
 		const indices: number[] = [];
+		const now: number = Date.now();
 		for (let i = 0; i < this.games.length; i++) {
-			if (this.games[i].finished) indices.push(i);
+			if (now - this.games[i].last_action > GameManager.MAX_GAME_DURATION_MS) {
+				this.games[i].endGame();
+			}
+			if (this.games[i].finished) {
+				indices.push(i);
+			}
 		}
+		
 		indices.reverse();
+
 		for (const index of indices) {
 			this.games.splice(index, 1);
 		}
 	}
 
-	public addGame(channel: TextChannel): void {
-		this.games.push(new SetGame(channel));
+	public addGame(channel: TextChannel, author: User): void {
+		this.games.push(new SetGame(channel, author.toString()));
 	}
 }

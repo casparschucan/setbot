@@ -16,7 +16,7 @@ client.once("ready", () => {
 	console.log("Ready!");
 });
 
-const gameManager = new GameManager();
+
 
 client.on("messageCreate", (message: Message) => {
 	gameManager.removeGames();
@@ -28,7 +28,7 @@ client.on("messageCreate", (message: Message) => {
 	const gameOnChannel = gameManager.gameOnChannel(message.channel);
 
 	if (mess.startsWith("::new")) {
-		if (gameOnChannel === undefined) gameManager.addGame(message.channel);
+		if (gameOnChannel === undefined) gameManager.addGame(message.channel, message.author);
 		else message.reply("there is already a game running on this channel.\n Continue to play it or end it with ::end game");
 	}
 	if (mess.startsWith("::add cards")) {
@@ -46,4 +46,6 @@ client.on("messageCreate", (message: Message) => {
 	gameManager.removeGames();
 });
 
+const gameManager = new GameManager();
+setInterval(() => gameManager.removeGames(), GameManager.MAX_GAME_DURATION_MS/2);
 client.login(process.env.TOKEN);

@@ -9,25 +9,27 @@ export class SetGame {
 	private static readonly COLORS = ["green", "blue", "red"];
 	private static readonly OPACITY = [0, 0.5, 1];
 
+	public channel: TextChannel;
+	public finished: boolean;
+	public last_action: number;
+
 	private cards: number[];
 	private curCards: number[];
 	private curIndex: number;
-	private players: Map<string, number> = new Map();
-	public channel: TextChannel;
+	private players: Map<string, number>;
 	private message: Message | undefined;
-	public finished: boolean;
 
-	private timer: NodeJS.Timeout;
-
-	constructor(channel: TextChannel) {
+	constructor(channel: TextChannel, author: string) {
 		this.cards = shuffleArray(Array.from(Array(81).keys()));
 		this.channel = channel;
 		this.curCards = this.cards.slice(0, 12);
-		this.curIndex = 12;
-		console.log(this.getStringCards());
+		this.curIndex = 12;	
 		this.finished = false;
-		this.timer = setTimeout(this.endGame, 3.6e6);
+		this.players = new Map();
+		this.players.set(author, 0);
+		this.last_action = Date.now();
 		this.drawCards();
+		console.log(this.getStringCards());
 	}
 
 	public async discordAddCards(message: Message): Promise<void> {
@@ -39,9 +41,11 @@ export class SetGame {
 		const score = this.players.get(tag);
 		if (score === undefined) {
 			this.players.set(tag, 0);
-		} 
-		clearTimeout(this.timer);
-		this.timer = setTimeout(this.endGame, 3.6e6);
+		}
+		if (this.curIndex > 80 && !this.findSet()) {
+			this.endGame();
+		}
+		this.last_action = Date.now();
 	}
 
 	public async newDiscordGuess(message: Message): Promise<void> {
@@ -63,8 +67,37 @@ export class SetGame {
 			this.players.set(tag, score - 3);
 		}
 		this.findSet();
-		clearTimeout(this.timer);
-		this.timer = setTimeout(this.endGame, 3.6e6);
+		this.last_action = Date.now();
+	}
+
+	public endGame() {
+		let endString = "The game has ended. The results are:\n";
+		for (const [tag, score] of this.players.entries()) {
+			endString += `${tag} has scored: ${score}\n`;
+		}
+		this.finished = true;
+		this.channel.send(endString);
+		if (this.message?.deletable) this.message.delete();
+	}
+
+	public moreCards(): void {
+		this.addCards();
+		console.log(this.getStringCards());
+	}
+
+	private findSet(): boolean {
+		for (let i = 0; i < this.curCards.length; i++) {
+			for (let j = i + 1; j < this.curCards.length; j++) {
+				for (let k = j + 1; k < this.curCards.length; k++) {
+					if (this.isSet(this.curCards[i], this.curCards[j], this.curCards[k])) {
+						console.log(i, j, k);
+						return true;
+					}
+				}
+			}
+		}
+		console.log("there are no sets currently");
+		return false;
 	}
 
 	private drawCards(): void {
@@ -132,7 +165,7 @@ export class SetGame {
 		}
 	}
 
-	public newGuess(pos1: number, pos2: number, pos3: number): boolean {
+	private newGuess(pos1: number, pos2: number, pos3: number): boolean {
 		console.log(pos1, pos2, pos3);
 		if (this.isSet(this.curCards[pos1], this.curCards[pos2], this.curCards[pos3])) {
 			this.curCards.splice(pos1, 1);
@@ -153,36 +186,6 @@ export class SetGame {
 			console.log("wrong ");
 			return false;
 		}
-	}
-
-	public endGame() {
-		let endString = "The game has ended. The results are:\n";
-		for (const [tag, score] of this.players) {
-			endString += `${tag} has scored: ${score}\n`;
-		}
-		this.finished = true;
-		this.channel.send(endString);
-		this.message?.delete();
-	}
-
-	public moreCards(): void {
-		this.addCards();
-		console.log(this.getStringCards());
-	}
-
-	public findSet(): boolean {
-		for (let i = 0; i < this.curCards.length; i++) {
-			for (let j = i + 1; j < this.curCards.length; j++) {
-				for (let k = j + 1; k < this.curCards.length; k++) {
-					if (this.isSet(this.curCards[i], this.curCards[j], this.curCards[k])) {
-						console.log(i, j, k);
-						return true;
-					}
-				}
-			}
-		}
-		console.log("there are no sets currently");
-		return false;
 	}
 
 	private getStringCards(): string {
